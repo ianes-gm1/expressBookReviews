@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
 const regd_users = express.Router();
 
+
 let users = [];
 
 const isValid = (username)=>{ 
@@ -60,14 +61,34 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     const review = req.body.review;
     const username = req.session.authorization.username;
     if (books[isbn]) {
-      let book = books[isbn];
-      book.reviews[username] = review;
-      res.status(200).send("Review posted");
+        let book = books[isbn];
+        book.reviews[username] = review;
+        res.status(200).send("Review posted");
     }
     else {
-        res.status(500).json({message: "Error- no books with the given titel"});
+        res.status(500).json({message: "Error- no books with the given isbn"});
     }
   });
+
+
+
+
+//  Task 9
+//  Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const username = req.session.authorization.username;
+    if (books[isbn]) {
+      let book = books[isbn];
+      delete book.reviews[username];
+      return res.status(200).send("Review  deleted");
+    }
+    else {
+      return res.status(404).json({message: "Error- no books with the given isbn"});
+    }
+  });
+
+
 
 
   

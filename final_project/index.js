@@ -20,13 +20,15 @@ if (req.session.authorization) {
                 req.user = user;
                 next(); // Proceed to the next middleware
             } else {
-                return res.status(403).json({message: "User not authenticated"});
+                return res.status(400).json({message: "User not authenticated"});
             }
         });
     } else {
-        return res.status(403).json({message:"User not logged in"});
+        return res.status(400).json({message:"User not logged in"});
     }
 });
+
+
  
 const PORT =5000;
 

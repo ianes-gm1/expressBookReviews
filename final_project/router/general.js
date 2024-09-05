@@ -2,7 +2,9 @@ const express = require('express');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
+const axios = require('axios');
 const public_users = express.Router();
+
 
 // task 6
 // Register a new user
@@ -23,8 +25,11 @@ public_users.post("/register", (req, res) => {
         }
     }
     // Return error if username or password is missing
+    console.error(error);
     return res.status(404).json({message: "Unable to register user."});
 });
+
+
 
 
 
@@ -44,6 +49,8 @@ public_users.get('/',function (req, res) {
 
 
 
+
+
 // task 2
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
@@ -51,6 +58,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
     if (books[isbn]) {
         res.send((JSON.stringify(books[isbn])));
     } else {
+        console.error(error);
         res.status(500).json({message: "Error- not able to retrieve book by the isbn"});
     }
  });
@@ -60,8 +68,8 @@ public_users.get('/isbn/:isbn',function (req, res) {
 
 
 
- // task 3
- // Get book details based on author
+// task 3
+// Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     const author = req.params.author
     const author_books = []
@@ -70,9 +78,25 @@ public_users.get('/author/:author',function (req, res) {
             author_books.push(books[key]);
         }}
     if (author_books.length === 0) {
+        console.error(error);
         res.status(500).json({message: "Error- no books with the given author"});
     }else{
         res.send((JSON.stringify(author_books)))
+    }
+// task 12
+const BooksPromise = new Promise((resolve, reject) => {
+    resolve(books);
+});
+BooksPromise.then((books) => {
+    for (let key in books) {
+        if (books[key].author === author) {
+            author_books.push(books[key]);
+        }
+    }
+    if (author_books.length === 0) {
+        res.status(404).json({ message: "No books found for the given author" });
+    } else {
+        res.json(author_books);
     }
 });
 
@@ -93,6 +117,7 @@ public_users.get('/title/:title',function (req, res) {
     if (title_books.length === 0) {
         res.status(500).json({message: "Error- no books with the given titel"});
     }else{
+        console.error(error);
         res.send((JSON.stringify(title_books)))
     }
 });
@@ -104,14 +129,31 @@ public_users.get('/title/:title',function (req, res) {
 
 
 // task 5
-//  Get book review
+// Get book review
 public_users.get('/review/:isbn',function (req, res) {
   const isbn = req.params.isbn
     if (books[isbn]) {
         res.send((JSON.stringify(books[isbn].reviews)));
     } else {
+        console.error(error);
         res.status(500).json({message: "Error- not able to retrieve reviews by the isbn"});
     }
  });
+
+
+
+
+
+// Task10
+// Get book lists
+//const BooksPromise = new Promise((resolve, reject) => {
+//    resolve(books);
+//});
+//BooksPromise.then((books) => {
+//    console.log("From Callback", books);
+//});
+
+
+
 
 module.exports.general = public_users;
